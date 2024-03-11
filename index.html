@@ -116,34 +116,22 @@
             outline: none;
         }
 
-        #loading-screen {
+        #loading-screen, #menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            color: #fff;
             z-index: 1000;
         }
 
         #menu {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            flex-direction: column;
-            align-items: center;
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
         }
 
         #play-button, #mods-button {
@@ -161,8 +149,30 @@
             background-color: #2980b9;
         }
 
-        #zip-input, #add-file-input, #remove-file-input {
-            display: none;
+        #mod-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .mod-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #444;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .mod-item:hover {
+            background-color: #555;
+        }
+
+        .mod-item span {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -171,15 +181,14 @@
         <div class="spinner" id="spinner"></div>
         <div id="status">Downloading...</div>
         <progress id="progress" value="0" max="100" hidden="hidden"></progress>
-        <button id="play-button" onclick="showMenu()">Play</button>
+        <button id="play-button" onclick="loadGame()">Play</button>
+        <button id="mods-button" onclick="showMods()">Mods</button>
     </div>
 
     <div id="menu">
-        <button id="mods-button" onclick="showMods()">Mods</button>
-        <button id="back-button" onclick="hideMenu()">Back</button>
+        <button id="back-button" onclick="hideMods()">Back</button>
         <input type="file" id="zip-input" accept=".zip" onchange="loadZip()" />
-        <input type="file" id="add-file-input" onchange="addFile()" />
-        <input type="file" id="remove-file-input" onchange="removeFile()" />
+        <ul id="mod-list"></ul>
     </div>
 
     <canvas id="canvas" onclick="window.focus();" oncontextmenu="event.preventDefault();"></canvas>
@@ -189,10 +198,10 @@
         var statusElement = document.getElementById('status');
         var progressElement = document.getElementById('progress');
         var spinnerElement = document.getElementById('spinner');
-        var menuElement = document.getElementById('menu');
-        var zipInputElement = document.getElementById('zip-input');
-        var addFileInputElement = document.getElementById('add-file-input');
-        var removeFileInputElement = document.getElementById('remove-file-input');
+        var loadingScreen = document.getElementById('loading-screen');
+        var menu = document.getElementById('menu');
+        var modList = document.getElementById('mod-list');
+        var zipInput = document.getElementById('zip-input');
 
         var Module = {
             preRun: [],
@@ -222,7 +231,7 @@
                 return canvas;
             })(),
             setStatus: function (text) {
-                if (!Module.setStatus.last) Module.setStatus.last = {time: Date.now(), text: ''};
+                if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
                 if (text === Module.setStatus.last.text) return;
                 var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
                 var now = Date.now();
@@ -258,67 +267,44 @@
             };
         };
 
-        function showMenu() {
-            document.getElementById('loading-screen').style.display = 'none';
-            menuElement.style.display = 'flex';
-            populateModList();
-        }
-
-        function hideMenu() {
-            document.getElementById('loading-screen').style.display = 'flex';
-            menuElement.style.display = 'none';
+        function loadGame() {
+            loadingScreen.style.display = 'none';
+            // Add your logic to start the game loading here
         }
 
         function showMods() {
-            document.getElementById('mods-button').style.display = 'none';
-            document.getElementById('back-button').style.display = 'inline-block';
-            document.getElementById('add-file-input').style.display = 'inline-block';
-            document.getElementById('remove-file-input').style.display = 'inline-block';
+            modList.innerHTML = ''; // Clear the mod list
+            menu.style.display = 'flex';
+            populateModList();
+        }
+
+        function hideMods() {
+            menu.style.display = 'none';
         }
 
         function populateModList() {
-            var modFolders = ['Mod1', 'Mod2', 'Mod3'];
-            var modListContainer = document.getElementById('mod-list');
-
-            modListContainer.innerHTML = '';
-
+            var modFolders = ['Mod1', 'Mod2', 'Mod3']; // Replace with your actual mod list
             modFolders.forEach(function (folder) {
-                var folderElement = document.createElement('div');
-                folderElement.classList.add('mod-folder');
-                folderElement.textContent = folder;
-                folderElement.onclick = function () {
-                    console.log('Clicked on folder:', folder);
-                };
-
-                modListContainer.appendChild(folderElement);
+                var listItem = document.createElement('li');
+                listItem.classList.add('mod-item');
+                listItem.innerHTML = '<span>' + folder + '</span><span onclick="removeMod(\'' + folder + '\')">Remove</span>';
+                modList.appendChild(listItem);
             });
         }
 
         function loadZip() {
-            var fileInput = zipInputElement;
-            if (fileInput.files.length > 0) {
-                var zipFile = fileInput.files[0];
+            if (zipInput.files.length > 0) {
+                var zipFile = zipInput.files[0];
                 console.log('Loaded ZIP file:', zipFile.name);
                 // Add your logic to handle the loaded ZIP file
             }
         }
 
-        function addFile() {
-            var fileInput = addFileInputElement;
-            if (fileInput.files.length > 0) {
-                var addedFile = fileInput.files[0];
-                console.log('Added file:', addedFile.name);
-                // Add your logic to handle the added file
-            }
-        }
-
-        function removeFile() {
-            var fileInput = removeFileInputElement;
-            if (fileInput.files.length > 0) {
-                var removedFile = fileInput.files[0];
-                console.log('Removed file:', removedFile.name);
-                // Add your logic to handle the removed file
-            }
+        function removeMod(folder) {
+            console.log('Removing mod:', folder);
+            // Add your logic to handle mod removal here
+            // You may want to update the modFolders array and repopulate the list
+            populateModList();
         }
     </script>
 
