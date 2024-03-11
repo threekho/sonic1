@@ -146,44 +146,8 @@
             background-color: #2980b9;
         }
 
-        #menu {
+        #zip-input {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            flex-direction: column;
-            align-items: center;
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-        }
-
-        .mod-folder {
-            margin: 10px 0;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        .mod-folder:hover {
-            text-decoration: underline;
-        }
-
-        #back-button {
-            margin-top: 20px;
-            font-size: 16px;
-            cursor: pointer;
-            color: #fff;
-            background-color: #3498db;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-        }
-
-        #back-button:hover {
-            background-color: #2980b9;
         }
     </style>
 </head>
@@ -192,14 +156,8 @@
         <div class="spinner" id="spinner"></div>
         <div id="status">Downloading...</div>
         <progress id="progress" value="0" max="100" hidden="hidden"></progress>
-        <button id="play-button" onclick="showMenu()">Play</button>
-    </div>
-
-    <div id="menu">
-        <div id="mod-list">
-            <!-- Dynamically populated mod folders will go here -->
-        </div>
-        <button id="back-button" onclick="hideMenu()">Back</button>
+        <label for="zip-input" id="play-button">Load ZIP</label>
+        <input type="file" id="zip-input" accept=".zip" onchange="loadZip()" />
     </div>
 
     <canvas id="canvas" onclick="window.focus();" oncontextmenu="event.preventDefault();"></canvas>
@@ -209,6 +167,7 @@
         var statusElement = document.getElementById('status');
         var progressElement = document.getElementById('progress');
         var spinnerElement = document.getElementById('spinner');
+        var zipInputElement = document.getElementById('zip-input');
 
         var Module = {
             preRun: [],
@@ -274,33 +233,13 @@
             };
         };
 
-        function showMenu() {
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('menu').style.display = 'flex';
-            populateModList();
-        }
-
-        function hideMenu() {
-            document.getElementById('loading-screen').style.display = 'flex';
-            document.getElementById('menu').style.display = 'none';
-        }
-
-        function populateModList() {
-            var modFolders = ['Mod1', 'Mod2', 'Mod3'];
-            var modListContainer = document.getElementById('mod-list');
-
-            modListContainer.innerHTML = '';
-
-            modFolders.forEach(function (folder) {
-                var folderElement = document.createElement('div');
-                folderElement.classList.add('mod-folder');
-                folderElement.textContent = folder;
-                folderElement.onclick = function () {
-                    console.log('Clicked on folder:', folder);
-                };
-
-                modListContainer.appendChild(folderElement);
-            });
+        function loadZip() {
+            var fileInput = zipInputElement;
+            if (fileInput.files.length > 0) {
+                var zipFile = fileInput.files[0];
+                console.log('Loaded ZIP file:', zipFile.name);
+                // Add your logic to handle the loaded ZIP file
+            }
         }
     </script>
 
