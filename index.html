@@ -116,7 +116,7 @@
             outline: none;
         }
 
-        #loading-screen, #menu {
+        #loading-screen, #menu, #buttons-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -130,14 +130,17 @@
             z-index: 1000;
         }
 
-        #menu {
+        #menu, #buttons-container {
             display: none;
         }
 
-        #play-button, #mods-button {
+        #buttons-container button {
             margin-top: 20px;
             font-size: 18px;
             cursor: pointer;
+        }
+
+        #play-button, #mods-button {
             color: #fff;
             background-color: #3498db;
             padding: 10px 20px;
@@ -150,9 +153,6 @@
         }
 
         #back-button, #add-mod-button {
-            margin-top: 20px;
-            font-size: 18px;
-            cursor: pointer;
             color: #fff;
             background-color: #3498db;
             padding: 10px 20px;
@@ -196,8 +196,10 @@
         <div class="spinner" id="spinner"></div>
         <div id="status">Downloading...</div>
         <progress id="progress" value="0" max="100" hidden="hidden"></progress>
-        <button id="play-button" onclick="loadGame()">Play</button>
-        <button id="mods-button" onclick="showMods()">Mods</button>
+        <div id="buttons-container">
+            <button id="play-button" onclick="loadGame()">Play</button>
+            <button id="mods-button" onclick="showMods()">Mods</button>
+        </div>
     </div>
 
     <div id="menu">
@@ -218,6 +220,7 @@
         var menu = document.getElementById('menu');
         var modList = document.getElementById('mod-list');
         var zipInput = document.getElementById('zip-input');
+        var buttonsContainer = document.getElementById('buttons-container');
 
         var Module = {
             preRun: [],
@@ -285,6 +288,8 @@
 
         function loadGame() {
             loadingScreen.style.display = 'none';
+            buttonsContainer.style.display = 'none';
+            menu.style.display = 'none';
             var script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = 'index.js';
