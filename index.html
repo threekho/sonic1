@@ -131,7 +131,22 @@
             z-index: 1000;
         }
 
-        #play-button {
+        #menu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            align-items: center;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+        }
+
+        #play-button, #mods-button {
             margin-top: 20px;
             font-size: 18px;
             cursor: pointer;
@@ -142,11 +157,11 @@
             border-radius: 5px;
         }
 
-        #play-button:hover {
+        #play-button:hover, #mods-button:hover {
             background-color: #2980b9;
         }
 
-        #zip-input {
+        #zip-input, #add-file-input, #remove-file-input {
             display: none;
         }
     </style>
@@ -156,8 +171,15 @@
         <div class="spinner" id="spinner"></div>
         <div id="status">Downloading...</div>
         <progress id="progress" value="0" max="100" hidden="hidden"></progress>
-        <label for="zip-input" id="play-button">Load ZIP</label>
+        <button id="play-button" onclick="showMenu()">Play</button>
+    </div>
+
+    <div id="menu">
+        <button id="mods-button" onclick="showMods()">Mods</button>
+        <button id="back-button" onclick="hideMenu()">Back</button>
         <input type="file" id="zip-input" accept=".zip" onchange="loadZip()" />
+        <input type="file" id="add-file-input" onchange="addFile()" />
+        <input type="file" id="remove-file-input" onchange="removeFile()" />
     </div>
 
     <canvas id="canvas" onclick="window.focus();" oncontextmenu="event.preventDefault();"></canvas>
@@ -167,7 +189,10 @@
         var statusElement = document.getElementById('status');
         var progressElement = document.getElementById('progress');
         var spinnerElement = document.getElementById('spinner');
+        var menuElement = document.getElementById('menu');
         var zipInputElement = document.getElementById('zip-input');
+        var addFileInputElement = document.getElementById('add-file-input');
+        var removeFileInputElement = document.getElementById('remove-file-input');
 
         var Module = {
             preRun: [],
@@ -233,12 +258,66 @@
             };
         };
 
+        function showMenu() {
+            document.getElementById('loading-screen').style.display = 'none';
+            menuElement.style.display = 'flex';
+            populateModList();
+        }
+
+        function hideMenu() {
+            document.getElementById('loading-screen').style.display = 'flex';
+            menuElement.style.display = 'none';
+        }
+
+        function showMods() {
+            document.getElementById('mods-button').style.display = 'none';
+            document.getElementById('back-button').style.display = 'inline-block';
+            document.getElementById('add-file-input').style.display = 'inline-block';
+            document.getElementById('remove-file-input').style.display = 'inline-block';
+        }
+
+        function populateModList() {
+            var modFolders = ['Mod1', 'Mod2', 'Mod3'];
+            var modListContainer = document.getElementById('mod-list');
+
+            modListContainer.innerHTML = '';
+
+            modFolders.forEach(function (folder) {
+                var folderElement = document.createElement('div');
+                folderElement.classList.add('mod-folder');
+                folderElement.textContent = folder;
+                folderElement.onclick = function () {
+                    console.log('Clicked on folder:', folder);
+                };
+
+                modListContainer.appendChild(folderElement);
+            });
+        }
+
         function loadZip() {
             var fileInput = zipInputElement;
             if (fileInput.files.length > 0) {
                 var zipFile = fileInput.files[0];
                 console.log('Loaded ZIP file:', zipFile.name);
                 // Add your logic to handle the loaded ZIP file
+            }
+        }
+
+        function addFile() {
+            var fileInput = addFileInputElement;
+            if (fileInput.files.length > 0) {
+                var addedFile = fileInput.files[0];
+                console.log('Added file:', addedFile.name);
+                // Add your logic to handle the added file
+            }
+        }
+
+        function removeFile() {
+            var fileInput = removeFileInputElement;
+            if (fileInput.files.length > 0) {
+                var removedFile = fileInput.files[0];
+                console.log('Removed file:', removedFile.name);
+                // Add your logic to handle the removed file
             }
         }
     </script>
